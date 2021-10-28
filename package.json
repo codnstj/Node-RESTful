@@ -4,7 +4,8 @@
   "description": "노드 jS  문법을 공부하고 백엔드 기초지식을 쌓을려고합니다.",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon ./src/main.js"
   },
   "repository": {
     "type": "git",
