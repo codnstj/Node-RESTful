@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 // @ts-check
 
 // 프레임워크 없이 간단한 토이 프로젝트 웹 서버 만들어보기
@@ -23,7 +22,6 @@ const http = require('http')
  * @property {string} content
  */
 /** @type {Post[]} */
-// eslint-disable-next-line no-unused-vars
 
 const posts = [
   {
@@ -50,6 +48,7 @@ const server = http.createServer((req, res) => {
   const PostIdRegexResult =
     (req.url && POSTS_ID_REGEX.exec(req.url)) || undefined
   if (req.url === '/posts' && req.method === 'GET') {
+    // GET /posts
     const result = {
       posts: posts.map((post) => ({
         id: post.id,
@@ -58,8 +57,8 @@ const server = http.createServer((req, res) => {
       tottalCount: posts.length,
     }
     res.statusCode = 200
-    res.setHeader('Content-Type', 'application/json; charset=utf-8')
-    res.end(JSON.stringify(result))
+    res.setHeader('Content-Type', 'application/json; charset=utf-8') // Get 요청을 받을떄 json 형식으로 utf-8 로 인코딩하여 받기
+    res.end(JSON.stringify(result)) // result 를 json 형태로 반환해서 보내준다.
   } else if (PostIdRegexResult) {
     // GET /posts/:id
     const postId = PostIdRegexResult[1]
@@ -74,6 +73,25 @@ const server = http.createServer((req, res) => {
     }
     console.log(`postId : ${postId}`)
   } else if (req.url === '/posts' && req.method === 'POST') {
+    // POST
+    req.setEncoding('utf-8')
+    req.on('data', (data) => {
+      /** @typedef CreatePostBody
+       *  @property {string} title
+       *  @property {string} content
+       */
+      // Post 요청 을 받을떄 사용되는 인자들을 정의
+      /** @type {CreatePostBody} */
+
+      const body = JSON.parse(data)
+
+      console.log(body)
+      posts.push({
+        id: body.title.toLocaleLowerCase().replace(/\s/g, ''), // posts객체에 저장할때 id 를 body.title 을 소문자로 변경하고 공백 제거
+        title: body.title,
+        content: body.content,
+      })
+    })
     res.statusCode = 200
     res.end('Creating post')
   } else {
