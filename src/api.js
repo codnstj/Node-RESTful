@@ -49,24 +49,44 @@ const posts = [
 /** @type {Route[]} */
 const routes = [
   {
+    // GET /posts
     url: /^\/posts$/,
     method: 'GET',
     callback: async () => ({
       // TODO : implement
       statusCode: 200,
-      body: {},
+      body: posts,
     }),
   },
   {
+    // GET /posts/:id
     url: /^\/posts\/([a-zA-z0-9-_]+)$/,
     method: 'GET',
-    callback: async () => ({
-      // TODO : implement
-      statusCode: 200,
-      body: {},
-    }),
+    // @ts-ignore
+    callback: async (matches) => {
+      const postId = matches[1]
+      if (!postId) {
+        return {
+          statusCode: 404,
+          body: 'Not found',
+        }
+      }
+      const post = posts.find((_post) => _post.id === postId)
+
+      if (!post) {
+        return {
+          statusCode: 404,
+          body: 'Not found',
+        }
+      }
+      return {
+        statusCode: 200,
+        body: post,
+      }
+    },
   },
   {
+    // POST /posts
     url: /^\/posts$/,
     method: 'POST',
     callback: async () => ({

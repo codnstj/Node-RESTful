@@ -11,6 +11,7 @@
  */
 
 const http = require('http')
+const { resolve } = require('path/posix')
 const { routes } = require('./api')
 
 const server = http.createServer((req, res) => {
@@ -24,20 +25,35 @@ const server = http.createServer((req, res) => {
         _route.method === req.method
     )
 
-    if (!route) {
+    if (!route || !req.url) {
       res.statusCode = 404
       res.end('Not Found!')
       return
     }
+    const regexResult = route.url.exec(req.url)
+    if (!regexResult) {
+      res.statusCode = 404
+      res.end('Not Found')
+      return
+    }
 
-    const result = await route.callback()
+    // eslint-disable-next-line no-shadow
+    const body = await new Promise((resolve) => {
+      req.setEncoding('utf-8')
+      req.on('data', (data) => {
+        resolve(data)
+      })
+    })
+
+    // @ts-ignore
+    const result = await route.callback(regexResult)
     res.statusCode = result.statusCode
 
     if (typeof result.body === 'string') {
-      res.end(result.body)
+      res.end(result.body) //
     } else {
-      res.setHeader('Content-Type', 'application/json; charset=utf-8')
-      res.end(JSON.stringify(result.body))
+      res.setHeader('Content-Type', 'application/json; charset=utf-8') // 반환 될때 헤더값 ( Json 형태의 UTF-8 의 인코더 형식)
+      res.end(JSON.stringify(result.body)) // 반환
     }
   }
   main()
